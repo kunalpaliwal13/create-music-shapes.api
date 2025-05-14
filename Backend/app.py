@@ -75,19 +75,30 @@ def get_audio(melody_line):
 def generate_music():
     try:
         data = request.get_json()
+
         scale = data.get('scale')
         length = data.get('length')
 
-        # Generate music using Shapes API
+        # Validate inputs
+        if not isinstance(scale, str) or not scale:
+            return jsonify({'error': 'Scale must be a non-empty string'}), 400
+
+        if not isinstance(length, int):
+            try:
+                length = int(length)
+            except (ValueError, TypeError):
+                return jsonify({'error': 'Length must be an integer'}), 400
+
+        if length <= 0:
+            return jsonify({'error': 'Length must be a positive integer'}), 400
         melody_line, description_line = generate_music_prompt(scale, length)
 
-        # Generate audio from the melody
         output_audio = get_audio(melody_line)
 
-        # Return the audio file
-        return send_file(output_audio, as_attachment=True)
+        return send_file(output_audio, as_attachment=True, download_name="melody.wav")
 
     except Exception as e:
+        print(f"Error in generate_music: {e}")
         return jsonify({"error": f"Error generating music: {str(e)}"}), 500
 
 

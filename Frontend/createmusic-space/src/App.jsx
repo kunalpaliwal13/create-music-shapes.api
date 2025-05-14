@@ -1,5 +1,5 @@
 // src/App.jsx
-import React, { useState } from 'react';
+import React, { useState,useRef, useEffect } from 'react';
 import axios from 'axios';
 
 const App = () => {
@@ -9,6 +9,8 @@ const App = () => {
   const [error, setError] = useState('');
   const [chat, setChat] = useState([]);
   const [message, setMessage] = useState('');
+  const chatEndRef = useRef(null);
+
 
   const scales = ['C Major','A Minor','G Major','E Minor','F Major','D Minor','D Major','B Minor','A Major','E Major','C Minor','G Minor','Bb Major','Eb Major','Ab Major','F# Minor','B Major','F# Major','Db Major','Ab Minor'];
 
@@ -16,15 +18,17 @@ const App = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!scale || !length) {
-      setError("Please select a scale and enter a valid length.");
+    
+    const parsedLength = parseInt(length);
+    if (!scale || isNaN(parsedLength) || parsedLength <= 0) {
+      setError("Please select a scale and enter a valid numeric length.");
       return;
     }
 
     try {
-      const response = await axios.post('https://create-music-shapes-api.onrender.com//generate-music', {
+      const response = await axios.post('https://create-music-shapes-api.onrender.com/generate-music', {
         scale,
-        length: parseInt(length)
+        length: parsedLength,
       }, { responseType: 'blob' });
 
       // Create a URL for the WAV file
@@ -36,23 +40,27 @@ const App = () => {
     }
   };
 
-  const handleChatSubmit = async () => {
+  const handleChatSubmit = async (e) => {
+    e.preventDefault();
     if (!message.trim()) return;
     const newChat = [...chat, { sender: 'user', text: message }];
     setChat(newChat);
     setMessage('');
 
     try {
-      const res = await axios.post('hhttps://create-music-shapes-api.onrender.com/chat', {
+      const res = await axios.post('https://create-music-shapes-api.onrender.com/chat', {
         message: message,
       });
 
-      const botReply = res.data.generated_text || "No response.";
+      const botReply = res.data.reply || "No response."; // Check for the actual response key
       setChat([...newChat, { sender: 'bot', text: botReply }]);
     } catch (err) {
       setChat([...newChat, { sender: 'bot', text: "Failed to get response." }]);
     }
   };
+  useEffect(() => {
+  chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+}, [chat]);
 
   return (
     <div className="min-h-screen bg-[url('/images/bg.jpg')] text-white font-sans bg-cover bg-no-repeat">
@@ -76,6 +84,7 @@ const App = () => {
               <label htmlFor="scale" className="block text-lg font-medium focus:outline-none focus:ring-0 text-gray-200">Select Scale</label>
               <select
                 id="scale"
+                name="scale"
                 value={scale}
                 onChange={(e) => setScale(e.target.value)}
                 className="mt-2 p-3 bg-gray-900 text-white border border-gray-700 rounded-md w-full"
@@ -92,6 +101,7 @@ const App = () => {
               <input
                 type="number"
                 id="length"
+                name="length"
                 value={length}
                 onChange={(e) => setLength(e.target.value)}
                 className="mt-2 p-3 bg-gray-900 text-white border border-gray-700 rounded-md w-full"
@@ -134,25 +144,30 @@ const App = () => {
           </div>
           <div className="flex-1 overflow-y-auto bg-[#e5e7eb46] rounded-md p-4 space-y-4">
             {chat.map((msg, idx) => (
-              <div key={idx} className={`p-3 rounded-md w-fit max-w-[75%] ${msg.sender === 'user' ? 'bg-blue-500 self-end' : 'bg-gray-700 self-start'}`}>
-                <p className="text-sm">{msg.text}</p>
+              <div className={`w-full flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div key={idx} className={`p-3 rounded-md w-fit max-w-[75%] ${msg.sender === 'user' ? 'bg-blue-500' : 'bg-gray-700 self-start'}`}>
+                <p className="text-md">{msg.text}</p>
+              </div>
+              <div ref={chatEndRef} />
               </div>
             ))}
           </div>
           <div className="flex mt-4 space-x-2">
+            <form onSubmit={handleChatSubmit} className="flex mt-4 space-x-2  w-full">
             <input
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="flex-1 p-3 bg-gray-700 text-white rounded-md"
+              className="flex-1 p-3 bg-gray-700 text-white rounded-md "
               placeholder="Ask something..."
             />
             <button
-              onClick={handleChatSubmit}
+              type='submit'
               className="px-5 py-3 bg-purple-600 rounded-md text-white hover:bg-purple-700 transition"
             >
               Send
             </button>
+            </form>
           </div>
         </div>
       </div>
