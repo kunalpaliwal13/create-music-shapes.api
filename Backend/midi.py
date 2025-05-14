@@ -19,7 +19,7 @@ def note_to_midi(note):
     midi_number = 12 + (octave * 12) + NOTE_MAP[key]
     return midi_number
 
-ddef create_midi_pretty(melody: str, output_path="output.mid", tempo=120):
+def create_midi_pretty(melody: str, output_path="output.mid", tempo=120):
     """
     Create a MIDI file from a space-separated string of notes (e.g., "C4 D4 E4").
     Each note will be a quarter note.

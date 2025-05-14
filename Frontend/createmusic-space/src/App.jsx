@@ -10,7 +10,8 @@ const App = () => {
   const [chat, setChat] = useState([]);
   const [message, setMessage] = useState('');
 
-  const scales = ['C Major', 'D Minor', 'F Major', 'G Minor'];
+  const scales = ['C Major','A Minor','G Major','E Minor','F Major','D Minor','D Major','B Minor','A Major','E Major','C Minor','G Minor','Bb Major','Eb Major','Ab Major','F# Minor','B Major','F# Major','Db Major','Ab Minor'];
+
 
   // Handle form submission
   const handleSubmit = async (e) => {
