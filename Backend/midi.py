@@ -1,5 +1,5 @@
 from mido import Message, MidiFile, MidiTrack, MetaMessage
-from midi2audio import FluidSynth
+import pretty_midi
 
 
 NOTE_MAP = {
@@ -18,18 +18,30 @@ def note_to_midi(note):
     key = pitch + accidental
     midi_number = 12 + (octave * 12) + NOTE_MAP[key]
     return midi_number
-def create_midi(melody, output_path="output.mid", tempo=500000):
-    mid = MidiFile()
-    track = MidiTrack()
-    mid.tracks.append(track)
-    # Set tempo (500000 microseconds per beat = 120 bpm)
-    track.append(MetaMessage('set_tempo', tempo=tempo))
-    notes = melody.split()
-    for note_str in notes:
-        midi_num = note_to_midi(note_str)
-        track.append(Message('note_on', note=midi_num, velocity=64, time=0))
-        track.append(Message('note_off', note=midi_num, velocity=64, time=480))  # quarter note
-    mid.save(output_path)
+
+ddef create_midi_pretty(melody: str, output_path="output.mid", tempo=120):
+    """
+    Create a MIDI file from a space-separated string of notes (e.g., "C4 D4 E4").
+    Each note will be a quarter note.
+    """
+    midi = pretty_midi.PrettyMIDI()
+    instrument = pretty_midi.Instrument(program=0) 
+    beat_duration = 60.0 / tempo
+
+    current_time = 0.0
+    for note_str in melody.split():
+        midi_number = note_to_midi(note_str)
+        note = pretty_midi.Note(
+            velocity=100, 
+            pitch=midi_number, 
+            start=current_time, 
+            end=current_time + beat_duration
+        )
+        instrument.notes.append(note)
+        current_time += beat_duration  # Move to next beat
+
+    midi.instruments.append(instrument)
+    midi.write(output_path)
     return output_path
 
 def midi_to_wav(midi_file, output_audio="output.wav", soundfont="/usr/share/sounds/sf2/FluidR3_GM.sf2"):

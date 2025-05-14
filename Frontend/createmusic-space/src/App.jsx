@@ -124,13 +124,14 @@ const App = () => {
         <div className="bg-[#10182856] p-6 rounded-xl  flex flex-col h-[600px]" style={{
     boxShadow: "-2px 2px 5px rgba(255, 255, 255, 0.3)" // top-left shadow
   }}>     
-          <div className='bg-amber-300 flex justify-between px-5'>
+          <div className=' flex justify-between px-5'>
           <h2 className="text-3xl font-semibold text-white mb-4">Talk to MusicBot</h2>
-          <p>notch
-            <br/><div>Hellow! I am notch. *I tap my desk nervously with my pencil.* *I look up and smile.*</div>
-          </p>
+          <div className='flex gap-2'>
+          <img src = "/images/notch.png" className='h-6 rounded-full'></img>
+          <p>notch</p>
           </div>
-          <div className="flex-1 overflow-y-auto bg-gray-200 rounded-md p-4 space-y-4">
+          </div>
+          <div className="flex-1 overflow-y-auto bg-[#e5e7eb46] rounded-md p-4 space-y-4">
             {chat.map((msg, idx) => (
               <div key={idx} className={`p-3 rounded-md w-fit max-w-[75%] ${msg.sender === 'user' ? 'bg-blue-500 self-end' : 'bg-gray-700 self-start'}`}>
                 <p className="text-sm">{msg.text}</p>
