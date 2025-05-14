@@ -5,8 +5,8 @@ import shutil
 import os
 
 from flask_cors import CORS
-CORS(app)
 app = Flask(__name__)
+CORS(app)
 
 shapes_client = OpenAI(
     api_key=os.getenv("API_KEY"),  
