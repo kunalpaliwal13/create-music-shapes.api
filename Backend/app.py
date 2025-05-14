@@ -57,7 +57,7 @@ def generate_music_prompt(scale="C_major", length=16):
         return "Error generating music", str(e)
 
 
-ddef get_audio(melody_line):
+def get_audio(melody_line):
     try:
         melody = melody_line.split('is:')[-1].strip()
         notes = melody.replace(" - ", " ").split(" ")
