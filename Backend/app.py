@@ -57,13 +57,15 @@ def generate_music_prompt(scale="C_major", length=16):
         return "Error generating music", str(e)
 
 
-def get_audio(melody_line):
+def get_audio(ai_output):
     try:
-        melody = melody_line.split('is:')[-1].strip()
-        notes = melody.replace(" - ", " ").split(" ")
-        note_lst = " ".join(notes)
+        melody_match = re.search(r"Melody:\s*(.*)", ai_output)
+        description_match = re.search(r"Description:\s*(.*)", ai_output)
 
-        midi_path = create_midi(note_lst, "melody.mid")
+        melody_line = melody_match.group(1) if melody_match else ""
+        description = description_match.group(1) if description_match else ""
+
+        midi_path = create_midi(melody_line, "melody.mid")
         if not midi_path:
             raise Exception("Failed to create MIDI file")
 
