@@ -63,6 +63,9 @@ def get_audio(melody_line):
         midi_path = create_midi(note_lst, "melody.mid")
         output_audio = midi_to_wav(midi_path, "melody.wav")
         return output_audio
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
         
 @app.route('/chat', methods=['POST'])
 def chat_with_shape():
