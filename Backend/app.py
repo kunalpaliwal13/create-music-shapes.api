@@ -12,9 +12,18 @@ BASE_URL = "https://api.shapes.inc/v1/"  # Replace with the actual endpoint
 
 def generate_music_prompt(scale="C_major", length=16):
     prompt = (
-        f"Generate a melody in the {scale} scale with {length} notes. Make the notes have a certain octave, and feel free to use sharps and flats. "
-        f"Then write a 1-2 sentence description about what the melody represents."
+
+        f"Generate a melody in the {scale} scale with {length} notes. "
+        f"Make sure the notes include octaves and can include sharps or flats. "
+        f"Respond in the following format:\n\n"
+        f"Melody: <space-separated list of notes>\n"
+        f"Description: <1-2 sentence description of the melody's emotion or story>\n\n"
+        f"For example:\n"
+        f"Melody: E5 G5 Bb5 E5 D5 Eb5 Bb5 G5 F5 D5 C5 Eb5\n"
+        f"Description: This melody represents a sense of quiet contemplation, like a person sitting in stillness, waiting for inspiration to strike."
     )
+
+    
 
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -48,18 +57,16 @@ def generate_music_prompt(scale="C_major", length=16):
         return "Error generating music", str(e)
 
 
-def get_audio(melody_line):
+ddef get_audio(melody_line):
     try:
-        melody = melody_line.split('is:')[-1].strip()  # Process the melody text
+        melody = melody_line.split('is:')[-1].strip()
         notes = melody.replace(" - ", " ").split(" ")
         note_lst = " ".join(notes)
 
-        # Create the MIDI file from the notes
         midi_path = create_midi(note_lst, "melody.mid")
         if not midi_path:
             raise Exception("Failed to create MIDI file")
 
-        # Convert MIDI to WAV audio
         output_audio = midi_to_wav(midi_path, "melody.wav")
         if not output_audio:
             raise Exception("Failed to convert MIDI to WAV")
@@ -68,29 +75,23 @@ def get_audio(melody_line):
 
     except Exception as e:
         print(f"Error in get_audio: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        raise  # ❗️Let generate_music() handle it
+
 
 
 @app.route("/generate-music", methods=["POST"])
 def generate_music():
     try:
         data = request.get_json()
-
         scale = data.get('scale')
         length = data.get('length')
-
-        # Validate inputs
-        if not isinstance(scale, str) or not scale:
-            return jsonify({'error': 'Scale must be a non-empty string'}), 400
 
         if not isinstance(length, int):
             try:
                 length = int(length)
-            except (ValueError, TypeError):
+            except:
                 return jsonify({'error': 'Length must be an integer'}), 400
 
-        if length <= 0:
-            return jsonify({'error': 'Length must be a positive integer'}), 400
         melody_line, description_line = generate_music_prompt(scale, length)
 
         output_audio = get_audio(melody_line)
@@ -100,6 +101,7 @@ def generate_music():
     except Exception as e:
         print(f"Error in generate_music: {e}")
         return jsonify({"error": f"Error generating music: {str(e)}"}), 500
+
 
 
 @app.route('/chat', methods=['POST'])

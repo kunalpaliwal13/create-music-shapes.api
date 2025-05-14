@@ -26,6 +26,7 @@ const App = () => {
     }
 
     try {
+      console.log(scale, parsedLength);
       const response = await axios.post('https://create-music-shapes-api.onrender.com/generate-music', {
         scale,
         length: parsedLength,
