@@ -21,7 +21,7 @@ const App = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/generate-music', {
+      const response = await axios.post('https://create-music-shapes-api.onrender.com//generate-music', {
         scale,
         length: parseInt(length)
       }, { responseType: 'blob' });
@@ -42,7 +42,7 @@ const App = () => {
     setMessage('');
 
     try {
-      const res = await axios.post('https://api-inference.huggingface.co/models/YOUR_MODEL', {
+      const res = await axios.post('hhttps://create-music-shapes-api.onrender.com/chat', {
         message: message,
       });
 

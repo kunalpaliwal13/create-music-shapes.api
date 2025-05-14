@@ -4,6 +4,8 @@ from midi import create_midi, midi_to_wav
 import shutil
 import os
 
+from flask_cors import CORS
+CORS(app)
 app = Flask(__name__)
 
 shapes_client = OpenAI(
@@ -29,8 +31,8 @@ def generate_music_prompt(scale="C_major", length=16):
 def generate_music():
     try:
         data = request.get_json()
-        scale = data.get('scale', 'C_major')
-        length = data.get('length', 16)
+        scale = data.get('scale')
+        length = data.get('length')
 
         # Generate music using the LLM
         response = generate_music_prompt(scale, length)
@@ -42,8 +44,8 @@ def generate_music():
         description_line = lines[1] if len(lines) > 1 else "No description provided."
         
         output_audio = get_audio(melody_line)
-        return send_file(output_audio, as_attachment=True)
         print(jsonify({"generated_music": melody_line, "description": description_line}))
+        return send_file(output_audio, as_attachment=True)
 
         # return jsonify({"generated_music": generated_music}), 200
     except Exception as e:
@@ -85,4 +87,4 @@ def chat_with_shape():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
