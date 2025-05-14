@@ -3,6 +3,7 @@ import requests
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from midi import create_midi, midi_to_wav
+import re
 
 app = Flask(__name__)
 CORS(app)
